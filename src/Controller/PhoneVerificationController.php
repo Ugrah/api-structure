@@ -1,43 +1,43 @@
 <?php
 namespace Src\Controller;
 
-use Src\TableGateways\PersonGateway;
+use Src\TableGateways\PhoneVerificationGateway;
 
-class PersonController {
+class PhoneVerificationController {
 
     private $db;
     private $requestMethod;
-    private $userId;
+    private $phoneVerifId;
 
-    private $personGateway;
+    private $phoneVerificationGateway;
 
-    public function __construct($db, $requestMethod, $userId)
+    public function __construct($db, $requestMethod, $phoneVerifId)
     {
         $this->db = $db;
         $this->requestMethod = $requestMethod;
-        $this->userId = $userId;
+        $this->phoneVerifId = $phoneVerifId;
 
-        $this->personGateway = new PersonGateway($db);
+        $this->phoneVerificationGateway = new PhoneVerificationGateway($db);
     }
 
     public function processRequest()
     {
         switch ($this->requestMethod) {
             case 'GET':
-                if ($this->userId) {
-                    $response = $this->getUser($this->userId);
+                if ($this->phoneVerifId) {
+                    $response = $this->getPhoneVerification($this->phoneVerifId);
                 } else {
-                    $response = $this->getAllUsers();
+                    $response = $this->getAllPhoneVerifications();
                 };
                 break;
             case 'POST':
-                $response = $this->createUserFromRequest();
+                $response = $this->createPhoneVerificationFromRequest();
                 break;
             case 'PUT':
-                $response = $this->updateUserFromRequest($this->userId);
+                $response = $this->updatePhoneVerificationFromRequest($this->phoneVerifId);
                 break;
             case 'DELETE':
-                $response = $this->deleteUser($this->userId);
+                $response = $this->deleteUser($this->phoneVerifId);
                 break;
             default:
                 $response = $this->notFoundResponse();
@@ -49,17 +49,17 @@ class PersonController {
         }
     }
 
-    private function getAllUsers()
+    private function getAllPhoneVerifications()
     {
-        $result = $this->personGateway->findAll();
+        $result = $this->phoneVerificationGateway->findAll();
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = json_encode($result);
         return $response;
     }
 
-    private function getUser($id)
+    private function getPhoneVerification($id)
     {
-        $result = $this->personGateway->find($id);
+        $result = $this->phoneVerificationGateway->find($id);
         if (! $result) {
             return $this->notFoundResponse();
         }
@@ -68,21 +68,21 @@ class PersonController {
         return $response;
     }
 
-    private function createUserFromRequest()
+    private function createPhoneVerificationFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
         if (! $this->validatePerson($input)) {
             return $this->unprocessableEntityResponse();
         }
-        $this->personGateway->insert($input);
+        $this->phoneVerificationGateway->insert($input);
         $response['status_code_header'] = 'HTTP/1.1 201 Created';
         $response['body'] = true;
         return $response;
     }
 
-    private function updateUserFromRequest($id)
+    private function updatePhoneVerificationFromRequest($id)
     {
-        $result = $this->personGateway->find($id);
+        $result = $this->phoneVerificationGateway->find($id);
         if (! $result) {
             return $this->notFoundResponse();
         }
@@ -90,19 +90,19 @@ class PersonController {
         if (! $this->validatePerson($input)) {
             return $this->unprocessableEntityResponse();
         }
-        $this->personGateway->update($id, $input);
+        $this->phoneVerificationGateway->update($id, $input);
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = true;
         return $response;
     }
 
-    private function deleteUser($id)
+    private function deletePhoneVerification($id)
     {
-        $result = $this->personGateway->find($id);
+        $result = $this->phoneVerificationGateway->find($id);
         if (! $result) {
             return $this->notFoundResponse();
         }
-        $this->personGateway->delete($id);
+        $this->phoneVerificationGateway->delete($id);
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = true;
         return $response;
@@ -110,12 +110,12 @@ class PersonController {
 
     private function validatePerson($input)
     {
-        if (! isset($input['firstname'])) {
-            return false;
-        }
-        if (! isset($input['lastname'])) {
-            return false;
-        }
+        // if (! isset($input['firstname'])) {
+        //     return false;
+        // }
+        // if (! isset($input['lastname'])) {
+        //     return false;
+        // }
         return true;
     }
 
