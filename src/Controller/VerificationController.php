@@ -1,43 +1,43 @@
 <?php
 namespace Src\Controller;
 
-use Src\TableGateways\EmailVerificationGateway;
+use Src\TableGateways\VerificationGateway;
 
-class EmailVerificationController {
+class VerificationController {
 
     private $db;
     private $requestMethod;
-    private $emailVerifId;
+    private $verifID;
 
-    private $emailVerificationGateway;
+    private $verificationGateway;
 
-    public function __construct($db, $requestMethod, $emailVerifId)
+    public function __construct($db, $requestMethod, $verifID)
     {
         $this->db = $db;
         $this->requestMethod = $requestMethod;
-        $this->emailVerifId = $emailVerifId;
+        $this->verifID = $verifID;
 
-        $this->emailVerificationGateway = new EmailVerificationGateway($db);
+        $this->verificationGateway = new VerificationGateway($db);
     }
 
     public function processRequest()
     {
         switch ($this->requestMethod) {
             case 'GET':
-                if ($this->emailVerifId) {
-                    $response = $this->getEmailVerification($this->emailVerifId);
+                if ($this->verifID) {
+                    $response = $this->find($this->verifID);
                 } else {
-                    $response = $this->getAllEmailVerifications();
+                    $response = $this->findAllVerifications();
                 };
                 break;
             case 'POST':
-                $response = $this->createEmailVerificationFromRequest();
+                $response = $this->createVerificationFromRequest();
                 break;
             case 'PUT':
-                $response = $this->updateEmailVerificationFromRequest($this->emailVerifId);
+                $response = $this->updateVerificationFromRequest($this->verifID);
                 break;
             case 'DELETE':
-                $response = $this->deleteEmailVerification($this->emailVerifId);
+                $response = $this->deleteVerification($this->verifID);
                 break;
             default:
                 $response = $this->notFoundResponse();
@@ -49,17 +49,17 @@ class EmailVerificationController {
         }
     }
 
-    private function getAllEmailVerifications()
+    private function findAllVerifications()
     {
-        $result = $this->emailVerificationGateway->findAll();
+        $result = $this->verificationGateway->findAll();
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = json_encode($result);
         return $response;
     }
 
-    private function getEmailVerification($id)
+    private function find($id)
     {
-        $result = $this->emailVerificationGateway->find($id);
+        $result = $this->verificationGateway->find($id);
         if (! $result) {
             return $this->notFoundResponse();
         }
@@ -68,54 +68,52 @@ class EmailVerificationController {
         return $response;
     }
 
-    private function createEmailVerificationFromRequest()
+    private function createVerificationFromRequest()
     {
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
-        if (! $this->validateEmailVerification($input)) {
+        if (! $this->validateVerification($input)) {
             return $this->unprocessableEntityResponse();
         }
-        $this->emailVerificationGateway->insert($input);
+        $this->verificationGateway->insert($input);
         $response['status_code_header'] = 'HTTP/1.1 201 Created';
         $response['body'] = true;
         return $response;
     }
 
-    private function updateEmailVerificationFromRequest($id)
+    private function updateVerificationFromRequest($id)
     {
-        $result = $this->emailVerificationGateway->find($id);
+        $result = $this->verificationGateway->find($id);
         if (! $result) {
             return $this->notFoundResponse();
         }
         $input = (array) json_decode(file_get_contents('php://input'), TRUE);
-        if (! $this->validateEmailVerification($input)) {
+        if (! $this->validateVerification($input)) {
             return $this->unprocessableEntityResponse();
         }
-        $this->emailVerificationGateway->update($id, $input);
+        $this->verificationGateway->update($id, $input);
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = true;
         return $response;
     }
 
-    private function deleteEmailVerification($id)
+    private function deleteVerification($id)
     {
-        $result = $this->emailVerificationGateway->find($id);
+        $result = $this->verificationGateway->find($id);
         if (! $result) {
             return $this->notFoundResponse();
         }
-        $this->emailVerificationGateway->delete($id);
+        $this->verificationGateway->delete($id);
         $response['status_code_header'] = 'HTTP/1.1 200 OK';
         $response['body'] = true;
         return $response;
     }
 
-    private function validateEmailVerification($input)
+    private function validateVerification($input)
     {
-        // if (! isset($input['firstname'])) {
+        // if ( (!isset($input['phone'])) || (!isset($input['email'])) ) {
         //     return false;
         // }
-        // if (! isset($input['lastname'])) {
-        //     return false;
-        // }
+
         return true;
     }
 
