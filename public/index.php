@@ -14,7 +14,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode( '/', $uri );
 
-var_dump( apache_request_headers() ); exit();
+// var_dump( apache_request_headers() ); exit();
 
 // var_dump( apache_request_headers()['authtoken'] ); exit();
 
